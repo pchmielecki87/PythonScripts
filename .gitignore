@@ -1,6 +1,7 @@
 .idea\
 .venv\
 .vscode\
+.DS_Store
 TDD.html
 
 # Byte-compiled / optimized / DLL files
