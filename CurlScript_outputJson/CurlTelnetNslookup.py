@@ -9,6 +9,7 @@ commands = [
     {"type": "curl", "url": "https://microsoft.com/", "port": 443},
     {"type": "curl", "url": "https://aws.amazon.com/", "port": 443},
     {"type": "telnet", "host": "microsoft.com", "port": 80},
+    {"type": "telnet", "host": "microsoft.com", "port": 443},
     {"type": "nslookup", "ip": "8.8.8.8"},
     {"type": "nslookup", "ip": "127.0.0.1"}
 ]
