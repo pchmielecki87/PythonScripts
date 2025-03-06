@@ -100,6 +100,14 @@ for cmd in commands:
         ip_clean = cmd["ip"].replace(".", "_")
         filename = f"nslookup_{ip_clean}_{datetime.utcnow().strftime('%Y%m%d')}.json"
     
+    # print json (each row in new line)
+    # json_output = json.dumps(data, indent=4)  # Pretty-print with indentation
+    # print(json_output)
+    
+    # print json in single line
+    json_output = json.dumps(data, separators=(',', ':'))  # Compact JSON
+    print(json_output)
+    
     # save as JSON
     with open(filename, "w") as json_file:
         json.dump(data, json_file, indent=4)

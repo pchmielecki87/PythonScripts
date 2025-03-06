@@ -35,6 +35,10 @@ for cmd in commands:
         }
     }
 
+    # print json
+    json_output = json.dumps(data, indent=4)  # Pretty-print with indentation
+    print(json_output)
+
     # save as file    
     domain = cmd.split()[1].split("//")[1].split("/")[0].replace(".", "_")
     filename = f"curl_{domain}_{datetime.utcnow().strftime('%Y%m%d')}.json"
