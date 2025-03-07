@@ -1,10 +1,10 @@
 import subprocess
 import json
-from datetime import datetime
+import datetime
 
 # commands
 commands = [
-    {"type": "curl", "url": "https://google.com/", "port": 80},
+    {"type": "curl", "url": "https://wp.pl/"},
     {"type": "curl", "url": "https://google.com/", "port": 443},
     {"type": "curl", "url": "https://microsoft.com/", "port": 443},
     {"type": "curl", "url": "https://aws.amazon.com/", "port": 443},
@@ -14,6 +14,15 @@ commands = [
     {"type": "nslookup", "ip": "127.0.0.1"}
 ]
 
+now_utc = datetime.datetime.now(datetime.UTC)
+
+# distinguish status code
+def get_http_status(http_status_code):
+    if http_status_code.startswith(("2", "3")):  # 2xx/3xx
+        return "INFO"
+    else:  # 4xx/5xx/errors
+        return "ERROR"
+
 # curl
 def run_curl(url, port=None):
     try:
@@ -22,7 +31,7 @@ def run_curl(url, port=None):
         
         curl_command = f"curl -o /dev/null -w '%{{http_code}}' {url}"
         result = subprocess.run(curl_command, shell=True, capture_output=True, text=True, check=True)
-        http_status_code = result.stdout.strip()  # Pobierz kod statusu HTTP
+        http_status_code = result.stdout.strip()  # get status code
         return http_status_code
     
     except subprocess.CalledProcessError as e:
@@ -53,12 +62,14 @@ def run_nslookup(ip):
 
 # run commands
 for cmd in commands:
-    timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    timestamp = now_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
     
     if cmd["type"] == "curl":
         http_status_code = run_curl(cmd["url"], cmd.get("port"))
+        status = get_http_status(http_status_code)
         data = {
-            "status": "INFO",
+            "source": "curl_telnet_nslookup",   # used for filteing category by monitoring tool
+            "status": status,
             "timestamp": timestamp,
             "message": f"curl {cmd['url']}" + (f" (port: {cmd['port']})" if "port" in cmd else ""),
             "http": {
@@ -69,12 +80,13 @@ for cmd in commands:
             }
         }
         domain = cmd["url"].split("//")[1].split("/")[0].replace(".", "_")
-        filename = f"curl_{domain}_{datetime.utcnow().strftime('%Y%m%d')}.json"
+        filename = f"curl_{domain}_{timestamp}.json"
     
     elif cmd["type"] == "telnet":
         telnet_result = run_telnet(cmd["host"], cmd["port"])
         data = {
-            "status": "INFO",
+            "source": "curl_telnet_nslookup",   # used for filteing category by monitoring tool
+            "status": "INFO" if telnet_result == "SUCCESS" else "ERROR",
             "timestamp": timestamp,
             "message": f"telnet {cmd['host']}:{cmd['port']}",
             "telnet": {
@@ -84,12 +96,13 @@ for cmd in commands:
             }
         }
         domain = cmd["host"].replace(".", "_")
-        filename = f"telnet_{domain}_{datetime.utcnow().strftime('%Y%m%d')}.json"
+        filename = f"telnet_{domain}_{timestamp}.json"
     
     elif cmd["type"] == "nslookup":
         nslookup_result = run_nslookup(cmd["ip"])
         data = {
-            "status": "INFO",
+            "source": "curl_telnet_nslookup",   # used for filteing category by monitoring tool
+            "status": "INFO" if "Name:" in nslookup_result else "ERROR",
             "timestamp": timestamp,
             "message": f"nslookup {cmd['ip']}",
             "nslookup": {
@@ -98,7 +111,7 @@ for cmd in commands:
             }
         }
         ip_clean = cmd["ip"].replace(".", "_")
-        filename = f"nslookup_{ip_clean}_{datetime.utcnow().strftime('%Y%m%d')}.json"
+        filename = f"nslookup_{ip_clean}_{timestamp}.json"
     
     # print json (each row in new line)
     # json_output = json.dumps(data, indent=4)  # Pretty-print with indentation
