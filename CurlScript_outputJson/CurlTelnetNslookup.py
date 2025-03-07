@@ -14,7 +14,7 @@ commands = [
     {"type": "nslookup", "ip": "127.0.0.1"}
 ]
 
-now_utc = datetime.datetime.now(datetime.UTC)
+now_utc = datetime.datetime.now(datetime.timezone.utc)
 
 # distinguish status code
 def get_http_status(http_status_code):
