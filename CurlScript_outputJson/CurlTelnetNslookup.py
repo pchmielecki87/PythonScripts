@@ -5,9 +5,9 @@ import datetime
 # commands
 commands = [
     {"type": "curl", "url": "https://wp.pl/"},
-    {"type": "curl", "url": "https://google.com/", "port": 443},
-    {"type": "curl", "url": "https://microsoft.com/", "port": 443},
-    {"type": "curl", "url": "https://aws.amazon.com/", "port": 443},
+    {"type": "curl", "url": "https://google.com:443/api/v1/healthcheck", "port": None}, # can use 443
+    {"type": "curl", "url": "https://microsoft.com/", "port": None},                    # 443 is obvious, so there is no need to use it
+    {"type": "curl", "url": "https://aws.amazon.com:443/", "port": None},               # can use 443
     {"type": "telnet", "host": "microsoft.com", "port": 80},
     {"type": "telnet", "host": "microsoft.com", "port": 443},
     {"type": "nslookup", "ip": "8.8.8.8"},
